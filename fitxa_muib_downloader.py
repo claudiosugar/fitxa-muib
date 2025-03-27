@@ -8,9 +8,7 @@ def download_pdf(referencia_catastral, download_path):
     with sync_playwright() as p:
         # Launch the browser
         browser = p.chromium.launch(headless=False)  # Set to True if you don't want to see the browser
-        context = browser.new_context(
-            accept_downloads=True  # Enable downloads
-        )
+        context = browser.new_context()
         
         # Create a new page
         page = context.new_page()
@@ -116,18 +114,45 @@ def download_pdf(referencia_catastral, download_path):
             # Wait for the info to load
             time.sleep(2)
             
-            # Wait for and click the download PDF button
-            print("Waiting for download button...")
-            with page.expect_download() as download_info:
-                page.click('button:has-text("PDF")')
+            # Click on the Fitxa link
+            print("Clicking on Fitxa link...")
+            page.wait_for_selector('a[onclick="obrirFitxa();"]')
+            page.click('a[onclick="obrirFitxa();"]')
             
-            download = download_info.value
+            # Wait for the new tab to open
+            print("Waiting for new tab...")
+            new_page = context.wait_for_event('page')
             
-            # Save the downloaded file
-            print(f"Saving PDF to {download_path}...")
-            download.save_as(download_path)
+            # Wait for the new page to load
+            new_page.wait_for_load_state('networkidle')
             
-            print(f"PDF successfully downloaded to {download_path}")
+            # Wait for the content to be fully loaded
+            print("Waiting for content to load...")
+            # Wait for any of these possible content indicators
+            try:
+                new_page.wait_for_selector('.x-panel-body', timeout=5000)
+            except:
+                try:
+                    new_page.wait_for_selector('.x-window-body', timeout=5000)
+                except:
+                    try:
+                        new_page.wait_for_selector('.x-panel', timeout=5000)
+                    except:
+                        print("No specific content selector found, waiting for general load...")
+            
+            # Additional wait to ensure all dynamic content is loaded
+            time.sleep(3)
+            
+            # Generate PDF using Playwright's pdf() function
+            print(f"Generating PDF and saving to {download_path}...")
+            new_page.pdf(
+                path=download_path,
+                format="A4",
+                print_background=True,
+                margin={"top": "20px", "right": "20px", "bottom": "20px", "left": "20px"}
+            )
+            
+            print(f"PDF successfully saved to {download_path}")
             
         except Exception as e:
             print(f"An error occurred: {str(e)}")
@@ -138,7 +163,7 @@ def download_pdf(referencia_catastral, download_path):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python pdf_downloader.py <referencia_catastral>")
+        print("Usage: python fitxa_muib_downloader.py <referencia_catastral>")
         sys.exit(1)
         
     referencia_catastral = sys.argv[1]

@@ -34,12 +34,12 @@ playwright install
 Run the script with a referencia catastral as an argument:
 
 ```bash
-python fitxa_muib_downloader.py <referencia_catastral>
+py fitxa_muib_downloader.py <referencia_catastral>
 ```
 
 Example:
 ```bash
-python fitxa_muib_downloader.py 7805508DD6870F
+py fitxa_muib_downloader.py 7805508DD6870F
 ```
 
 The script will:
