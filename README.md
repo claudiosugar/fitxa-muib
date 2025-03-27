@@ -1,17 +1,53 @@
-# MUIB PDF Downloader
+# FITXA MUIB Downloader
 
-A Python script to automatically download PDF files from the MUIB (Mapa Urbanístic d'Informació Bàsica) website using a referencia catastral.
+A web service that automates the download of property information sheets (fitxes) from the MUIB (Mapa Urbanístic de les Illes Balears) system.
 
 ## Features
 
-- Automatically navigates to the MUIB website
-- Handles layer checkboxes and panel expansion
-- Searches for a specific referencia catastral
-- Clicks on the result to center the map
-- Opens the fitxa in a new tab
-- Generates a PDF from the fitxa content
+- Web interface for easy access
+- RESTful API endpoint for programmatic access
+- Automated browser interaction using Playwright
+- Deployable to fly.io with production-ready configuration
+- Automatic scaling and memory management
 
-## Installation
+## Live Demo
+
+The application is deployed and available at: https://fitxa-muib.fly.dev
+
+## Usage
+
+### Web Interface
+
+1. Visit https://fitxa-muib.fly.dev
+2. Enter your referencia catastral in the input field
+3. Click "Download PDF"
+4. Wait for the PDF to be generated and downloaded
+
+### API Endpoint
+
+You can also use the REST API endpoint directly:
+
+```bash
+# Using curl
+curl -X POST https://fitxa-muib.fly.dev/download-pdf \
+  -H "Content-Type: application/json" \
+  -d '{"referencia_catastral": "7805508DD6870F"}' \
+  --output output.pdf
+
+# Using path parameter
+curl https://fitxa-muib.fly.dev/download-pdf/7805508DD6870F \
+  --output output.pdf
+```
+
+## Local Development
+
+### Prerequisites
+
+- Python 3.11+
+- pip
+- Google Chrome or Chromium
+
+### Installation
 
 1. Clone the repository:
 ```bash
@@ -19,45 +55,72 @@ git clone https://github.com/claudiosugar/fitxa-muib.git
 cd fitxa-muib
 ```
 
-2. Install the required dependencies:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
 3. Install Playwright browsers:
 ```bash
-playwright install
+playwright install chromium
+playwright install-deps
 ```
 
-## Usage
-
-Run the script with a referencia catastral as an argument:
-
+4. Run the development server:
 ```bash
-py fitxa_muib_downloader.py <referencia_catastral>
+python app.py
 ```
 
-Example:
+The application will be available at http://localhost:5000
+
+## Deployment
+
+The application is configured for deployment on fly.io.
+
+1. Install the Fly CLI:
 ```bash
-py fitxa_muib_downloader.py 7805508DD6870F
+curl -L https://fly.io/install.sh | sh
 ```
 
-The script will:
-1. Open a browser window
-2. Navigate to the MUIB website
-3. Configure the layers
-4. Search for the provided referencia catastral
-5. Click on the map to center the result
-6. Open the fitxa in a new tab
-7. Generate a PDF from the fitxa content
-8. Save it as `<referencia_catastral>.pdf` in the current directory
+2. Login to Fly:
+```bash
+fly auth login
+```
 
-## Requirements
+3. Deploy the application:
+```bash
+fly deploy
+```
 
-- Python 3.7 or higher
-- Playwright
-- Internet connection
+## Configuration
+
+The application uses the following configuration:
+
+- `fly.toml`: Fly.io deployment configuration
+  - 2GB RAM allocation
+  - Madrid region for optimal latency
+  - Auto-scaling enabled
+  
+- `Dockerfile`: Container configuration
+  - Python 3.11 slim base image
+  - Playwright and Chrome dependencies
+  - Gunicorn with optimized settings
+    - 300 second timeout
+    - 2 workers
+    - 2 threads per worker
+
+## Technical Details
+
+- **Framework**: Flask
+- **Browser Automation**: Playwright
+- **Production Server**: Gunicorn
+- **Deployment**: fly.io
+- **Container**: Docker
 
 ## License
 
-MIT License 
+MIT License
+
+## Author
+
+Claudio Sugar 
