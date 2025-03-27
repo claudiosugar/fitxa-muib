@@ -6,8 +6,8 @@ import re
 
 def download_pdf(referencia_catastral, download_path):
     with sync_playwright() as p:
-        # Launch the browser
-        browser = p.chromium.launch(headless=False)  # Set to True if you don't want to see the browser
+        # Launch the browser in headless mode
+        browser = p.chromium.launch(headless=True)  # Set to True for headless mode
         context = browser.new_context()
         
         # Create a new page
@@ -156,6 +156,7 @@ def download_pdf(referencia_catastral, download_path):
             
         except Exception as e:
             print(f"An error occurred: {str(e)}")
+            raise  # Re-raise the exception to be handled by the Flask app
         
         finally:
             # Close the browser
