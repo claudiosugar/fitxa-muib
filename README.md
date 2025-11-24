@@ -9,6 +9,9 @@ A web service that automates the download of property information sheets (fitxes
 - Automated browser interaction using Playwright
 - Deployable to fly.io with production-ready configuration
 - Automatic scaling and memory management
+- Robust error handling with automatic retry logic
+- Thread-safe execution with concurrency locks
+- Comprehensive logging for debugging and monitoring
 
 ## Live Demo
 
@@ -116,6 +119,15 @@ The application uses the following configuration:
 - **Production Server**: Gunicorn
 - **Deployment**: fly.io
 - **Container**: Docker
+
+## Recent Improvements
+
+- **Enhanced Logging**: Comprehensive logging throughout the application for better debugging and monitoring
+- **Retry Logic**: Automatic retry mechanism (up to 2 attempts) for handling transient failures from the MUIB website
+- **Concurrency Control**: Thread-safe execution using locks to prevent multiple Playwright sessions from interfering with each other
+- **Improved Error Handling**: Better error detection and reporting, including detection of error messages in search results
+- **Extended Timeouts**: Increased timeouts for critical operations (60 seconds) to handle slow network conditions
+- **Better Browser Cleanup**: Proper cleanup of browser contexts and instances to prevent resource leaks
 
 ## License
 

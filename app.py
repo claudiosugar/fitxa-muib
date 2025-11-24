@@ -1,10 +1,16 @@
 from flask import Flask, send_file, request, jsonify, render_template
 from fitxa_muib_downloader import download_pdf
+import logging
 import os
 import tempfile
 import uuid
 
 app = Flask(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 @app.route('/')
 def index():
@@ -16,13 +22,15 @@ def download_pdf_endpoint(referencia_catastral=None):
     try:
         # Handle GET request with path parameter
         if request.method == 'GET' and referencia_catastral:
-            pass  # Use the path parameter
+            logger.info("Received GET download request", extra={"referencia": referencia_catastral})
         # Handle POST request with JSON body
         else:
             data = request.get_json()
             if not data or 'referencia_catastral' not in data:
+                logger.warning("POST download request missing referencia_catastral")
                 return jsonify({'error': 'Missing referencia_catastral parameter'}), 400
             referencia_catastral = data['referencia_catastral']
+            logger.info("Received POST download request", extra={"referencia": referencia_catastral})
         
         # Create a temporary file with a unique name
         temp_dir = tempfile.gettempdir()
@@ -45,12 +53,15 @@ def download_pdf_endpoint(referencia_catastral=None):
         def cleanup():
             try:
                 os.remove(temp_path)
+                logger.info("Cleaned up temporary file", extra={"temp_path": temp_path})
             except Exception as e:
-                print(f"Error deleting temporary file: {e}")
+                logger.error("Error deleting temporary file", extra={"temp_path": temp_path, "error": str(e)})
         
+        logger.info("PDF ready for download", extra={"referencia": referencia_catastral})
         return response
 
     except Exception as e:
+        logger.exception("Download request failed", extra={"referencia": referencia_catastral})
         return jsonify({'error': str(e)}), 500
 
 @app.route('/health', methods=['GET'])
